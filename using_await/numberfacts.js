@@ -41,17 +41,21 @@ async function getMultipleFacts() {
 }
 
 async function displayMultipleFactsOneNumber(howMany) {
-    const factRequests = [];
-    const url = `http://numbersapi.com/${numText.value}/${factTypeSelector.value}?json`;
-    for (let i = 0; i < howMany; i++) {
-        factRequests.push(axios.get(url));
-    }
+    try {
+        const factRequests = [];
+        const url = `http://numbersapi.com/${numText.value}/${factTypeSelector.value}?json`;
+        for (let i = 0; i < howMany; i++) {
+            factRequests.push(axios.get(url));
+        }
 
-    factsList.innerHTML = '';
-    factRequests.forEach(async (f) => {
-        let {data:{text:fact}} = await f;
-        addNewFactToList(fact);
-    });
+        factsList.innerHTML = '';
+        factRequests.forEach(async (f) => {
+            let {data:{text:fact}} = await f;
+            addNewFactToList(fact);
+        });
+    } catch(err) {
+        console.log('Error: ', err);
+    }
 }
 
 function displayFacts() {
