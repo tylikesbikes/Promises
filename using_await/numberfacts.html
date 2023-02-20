@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deck of Cards</title>
+    <title>Number Facts</title>
 </head>
 <body>
     <div id="everything" style="margin:auto;">
@@ -21,97 +21,14 @@
             <option value="trivia">Trivia</option>
             <option value="math">Math</option>
         </select><br>
-        <lable for="giveMeFour">Give Me Four facts about a single number</lable>
+        <label for="giveMeFour">Give Me Four facts about a single number</label>
         <input type="checkbox" id="giveMeFour"><br>
         <button onclick="displayFacts()">Get a Random Number Fact!</button>
     </p>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
+    <script src="numberfacts.js"></script>
 
-        const numFact = document.querySelector('#numberfact');
-        const factTypeSelector = document.querySelector('#factTypeSelector');
-        const numText = document.querySelector('#num');
-        const factsList = document.querySelector('#factsList');
-        const giveMeFour = document.querySelector('#giveMeFour');
-        let facts = [];
-
-        async function getSingleFact() {
-            // factsList.innerHTML='';
-            axios.get(`http://numbersapi.com/${numText.value}/${factTypeSelector.value}?json`)
-            // .then((res) => {numFact.innerText = res.text;
-            // },
-
-            .then((res) => {
-                
-                factsList.innerText = res.data.text;}
-                ,
-            fail => numFact.innerText = 'Fail'
-            );
-        }
-
-        
-        async function getMultipleFacts() {
-            axios.get(`http://numbersapi.com/${numText.value}/${factTypeSelector.value}?json`)
-            .then((res) => {
-                const theKeys = Object.keys(res.data);
-                factsList.innerHTML='';
-                for (let i = 0; i < theKeys.length; i++) {
-                    factsList.innerHTML+=`<li>
-                        ${res.data[theKeys[i]]}
-                        </li>`;
-                }
-            })
-        }
-
-        async function displayFourFactsOneNumber() {
-            facts = [];
-
-
-            axios.get(`http://numbersapi.com/${numText.value}/${factTypeSelector.value}?json`)
-            .then((res) => {facts.push(res.data.text)})
-            axios.get(`http://numbersapi.com/${numText.value}/${factTypeSelector.value}?json`)
-            .then((res) => {facts.push(res.data.text)})
-            axios.get(`http://numbersapi.com/${numText.value}/${factTypeSelector.value}?json`)
-            .then((res) => {facts.push(res.data.text)})
-            axios.get(`http://numbersapi.com/${numText.value}/${factTypeSelector.value}?json`)
-            .then((res) => {facts.push(res.data.text)})
-            .then(() => {
-                
-                for (let i = 0; i < facts.length; i++) {
-                    if (i==0) {
-                        factsList.innerHTML=`<li>
-                        ${facts[i]}
-                        </li>`;
-                    }
-                    else {
-                        factsList.innerHTML+=`<li>
-                        ${facts[i]}
-                        </li>`;
-                    }
-            }});
-        }
-
-        function displayFacts() {
-            if (giveMeFour.checked) {
-                displayFourFactsOneNumber();
-                return 'four';
-            }
-            
-
-            else if (numText.value.indexOf(',') >= 0 || numText.value.indexOf('..') >= 0) {
-                getMultipleFacts();
-                return 'multiple';
-            }
-            else {
-                getSingleFact();
-                return 'single';
-            }
-        }
-
-
-
-    </script>
     </div>
 </body>
 </html>
