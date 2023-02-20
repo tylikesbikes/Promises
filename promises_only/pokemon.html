@@ -8,7 +8,9 @@
 </head>
 <body>
     <h1>Pokemon</h1>
+    <h3>Loading...</h3>
     <button type="button" onclick = "pkmn.drawChosenPokemon()">SHOW ME SOME POKEMON</button>
+    <button type="button" onclick = "pkmn.init()">Retrieve a new list of Pokemon</button>
 
     <div id = "pkmn" class="row">
         
@@ -21,6 +23,8 @@
         const pkmn = {
 
             async init() {
+                const loadStatus = document.querySelector('h3');
+                loadStatus.innerText='Loading'
                 this.listOfPokemon = [];
                 let nextPage = 'https://pokeapi.co/api/v2/pokemon/?limit=1279';
 
@@ -28,7 +32,10 @@
                 .then((res) => {
                         res.data.results.forEach(p => this.listOfPokemon.push([p.name, p.url]));
                     })
-                .then(() => this.fillChosenPokemonInfo(3));
+                .then(() => this.fillChosenPokemonInfo(3))
+                .then(() => {
+                    loadStatus.innerText = '';
+                });
             },
 
             chooseRandomPokemon(howMany) {
@@ -59,26 +66,20 @@
                         name = res.data.name;
                         species = res.data.species.url;
                         picture = res.data.sprites.front_default;
+                        return axios.get(`${species}`);
                     })
-                    .then(() =>
-                        axios.get(`${species}`)
-                        .then((speciesRes) => {
-                            const flavorTextEntriesAll = speciesRes.data.flavor_text_entries;
-
-                            flavorTextEntriesAll.forEach(e => {
-                                
-                                    if (e.language.name == 'en') {
-                                        flavorTextEnglish=e.flavor_text; 
-                                    }
-                            })
-
+                    .then((speciesRes) => {
+                        const flavorTextEntriesAll = speciesRes.data.flavor_text_entries;
+                        flavorTextEntriesAll.forEach(e => {  
+                                if (e.language.name == 'en') {
+                                    flavorTextEnglish=e.flavor_text; 
+                                }
                         })
-
-
-                    )
+                    })
                     .then(() => {
                         this.pokemonDetails.push({name, flavorTextEnglish, picture});
                     })
+                    .catch((err) => console.log('ERROR: ', err))
                     
                 })
             },
