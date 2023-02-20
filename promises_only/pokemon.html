@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon</title>
+</head>
+<body>
+    <h1>Pokemon</h1>
+    <button type="button" onclick = "pkmn.drawChosenPokemon()">SHOW ME SOME POKEMON</button>
+
+    <div id = "pkmn" class="row">
+        
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        const pkmn = {
+
+            async init() {
+                this.listOfPokemon = [];
+                let nextPage = 'https://pokeapi.co/api/v2/pokemon/?limit=1279';
+
+                axios.get(`${nextPage}`)
+                .then((res) => {
+                        res.data.results.forEach(p => this.listOfPokemon.push([p.name, p.url]));
+                    })
+                .then(() => this.fillChosenPokemonInfo(3));
+            },
+
+            chooseRandomPokemon(howMany) {
+                this.chosenPokemonIds = [];
+
+                for (i = 0; i < howMany; i++) {
+                    let index = Math.floor(Math.random() * this.listOfPokemon.length);
+                    this.chosenPokemonIds.push(index);
+                    
+                }
+                return this.chosenPokemonIds;
+            },
+
+            async fillChosenPokemonInfo(howMany) {
+                const pokeIds = this.chooseRandomPokemon(howMany);
+
+                this.pokemonDetails = [];
+
+                pokeIds.forEach (p => {
+                    let url = this.listOfPokemon[p][1];
+                    let name = '';
+                    let species = '';
+                    let flavorTextEnglish = 'No English flavor text available';
+                    let picture = '';
+
+                    axios.get(`${url}`)
+                    .then((res) => {
+                        name = res.data.name;
+                        species = res.data.species.url;
+                        picture = res.data.sprites.front_default;
+                    })
+                    .then(() =>
+                        axios.get(`${species}`)
+                        .then((speciesRes) => {
+                            const flavorTextEntriesAll = speciesRes.data.flavor_text_entries;
+
+                            flavorTextEntriesAll.forEach(e => {
+                                
+                                    if (e.language.name == 'en') {
+                                        flavorTextEnglish=e.flavor_text; 
+                                    }
+                            })
+
+                        })
+
+
+                    )
+                    .then(() => {
+                        this.pokemonDetails.push({name, flavorTextEnglish, picture});
+                    })
+                    
+                })
+            },
+
+            async drawChosenPokemon() {
+                
+                const pkmn = document.querySelector('#pkmn');
+                pkmn.innerHTML = '';
+                this.pokemonDetails.forEach(p =>{
+                
+                pkmn.innerHTML += 
+                `
+                <div class="col-sm">
+                    <h3>${p.name}</h3>
+                    <img src="${p.picture}">
+                    <p>${p.flavorTextEnglish}</p>
+                </div>
+                `;
+            })
+
+            }
+        }
+
+
+
+    pkmn.init();
+    
+    </script>
+</body>
+</html>
