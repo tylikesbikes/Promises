@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deck of Cards</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="cards.css">
+</head>
+<body>
+
+    
+
+    <div id="cardContainer" class="row">
+        
+        <div id="cardDisplay" class="col-md-8 offset-md-2" >
+            <h1 id="deckStatus">Deck Of Cards</h1>
+            <button type="button" onclick = "deckOfCards.displayNewCard()" class="btn btn-secondary">Deal New Card!</button>
+        </div>
+        <div id="cards" class="col-md-8 offset-md-2" style="margin-top:50px;">
+            
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+
+        const deckOfCards = {  //deck of cards object
+
+            async init() {
+                this.deckId = '';
+                this.cardsLeft = 52;
+                this.zIndex = 0;
+
+                axios.get(`https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`)
+                .then((res) => this.deckId = res.data.deck_id);
+            },
+
+            getRandomSign() {
+                if (Math.floor(Math.random()*45) >= 27.5) {
+                    return 1;
+                }
+                return -1;
+            },
+
+            randomRotation() {
+                //generate rotation between -45 degrees and +45 degrees for card display;
+                let randSign = this.getRandomSign();
+                    return Math.floor(Math.random() * 45 * randSign);
+            },
+
+            async displayNewCard() {
+                if (this.cardsLeft > 0) {
+                    axios.get(`https://deckofcardsapi.com/api/deck/${this.deckId}/draw/?count=1`)
+                    .then((res) => {
+                        this.cardsLeft = res.data.remaining;
+                        this.zIndex+=1;
+                        let thisCardImage = res.data.cards[0].image;
+                        cardDisplay = document.querySelector('#cards');
+
+                        cardDisplay.innerHTML += `
+                        <img src = "${thisCardImage}" style="z-index:${this.zIndex};position:absolute;transform:rotate(${this.randomRotation()}deg);">
+                        `;
+                        
+
+                    })
+                }
+                else {
+                    cardStatus = document.querySelector('#deckStatus');
+                    cardStatus.innerText = 'Deck Of Cards IS EMPTY';
+                    // display a message saying deck is empty;
+                }
+            }
+            
+        //     async drawCardFromNewDeck() {
+        //         this.deckId = '';
+        //         axios.get(`https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`)
+        //         .then((res) => this.deckId = res.data.deck_id)
+        //         .then(() => {   
+        //             this.cards = [];
+        //             axios.get(`https://deckofcardsapi.com/api/deck/${this.deckId}/draw/?count=1`)
+        //             .then((res) => this.cards.push(`${res.data.cards[0].value} of ${res.data.cards[0].suit}`))
+        //             .then(() => {
+        //                 axios.get(`https://deckofcardsapi.com/api/deck/${this.deckId}/draw/?count=1`)
+        //                 .then((res) => this.cards.push(`${res.data.cards[0].value} of ${res.data.cards[0].suit}`))
+        //                 .then(() => {
+        //                     this.cards.forEach(c => console.log(c));
+        //                 })
+        //             })
+                    
+        //         });
+        //     },
+        }
+
+        deckOfCards.init();
+        
+
+    </script>
+
+</body>
+</html>
